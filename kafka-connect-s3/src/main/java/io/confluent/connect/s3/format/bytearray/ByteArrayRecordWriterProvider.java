@@ -33,6 +33,7 @@ import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;
 
 public class ByteArrayRecordWriterProvider extends RecordViewSetter
@@ -73,8 +74,9 @@ public class ByteArrayRecordWriterProvider extends RecordViewSetter
                 sinkRecordToLoggableString(record));
             byte[] bytes = converter.fromConnectData(record.topic(),
                 recordView.getViewSchema(record, false), recordView.getView(record, false));
+            byte[] length = ByteBuffer.allocate(4).putInt(bytes.length).array();
+            s3outWrapper.write(length);
             s3outWrapper.write(bytes);
-            s3outWrapper.write(lineSeparatorBytes);
           }
 
           @Override
